@@ -5,11 +5,11 @@ def darCartas(Rodada, cartas):
     carta = random.choice(cartas)
     Rodada.append(carta)
     cartas.remove(carta)
-
+    
 # Calcular a mão do player e do Dealer;
 def totaldeCartas(Rodada):
     total = 0
-    fcarta = ['J', 'K', 'Q']
+    fcarta = ['J', 'K', 'Q'] #Caso queira mudar para 11,12 e 13 fique a vontade, mas precisa alterar os ifs do 14 ao 23;
     for carta in Rodada:
         if isinstance(carta, int):
             total += carta
@@ -29,26 +29,56 @@ def verMao(maodoDealer):
     elif len(maodoDealer) > 2:
         return maodoDealer[0], maodoDealer[1]
 
+
 # Começar com resposta = sim
 resposta = "sim"
+
+# Adicionando fichas/pontos;
+
+fichas = 500;
 
 while resposta.lower() == "sim":
 
     jogador = True
     dealer = True
+    #Talvez uma função de criar mais players contra o Dealer?
 
     # Pacotes de cartas / Mão do Dealer;
-    cartas = [2, 3, 4, 5, 6, 7, 8, 9, 10, 2, 3, 4, 5, 6, 7, 8, 9, 10, 2, 3, 4, 5, 6, 7, 8, 9, 10, 2, 3, 4, 5, 6, 7, 8, 9, 10,
-              'J', 'Q', 'K', 'A', 'J', 'Q', 'K', 'A', 'J', 'Q', 'K', 'A', 'J', 'Q', 'K', 'A']
-    maodoJogador = []
+    cartas = [2, 3, 4, 5, 6, 7, 8, 9, 10, 2, 3, 4, 5, 6, 7, 8, 9, 10, 2, 3, 4, 5, 6, 7, 8, 9, 10, 2, 3, 4, 5, 6, 7, 8, 9, 10,'J', 'Q', 'K', 'A', 'J', 'Q', 'K', 'A', 'J', 'Q', 'K', 'A', 'J', 'Q', 'K', 'A']
+    #Fazer uma matriz que organize as cartas por cor, tipo e numero;
+    maodoJogador = [] 
     maodoDealer = []
+    
+     # Verificando saldo de fichas do jogador: 
+    print(f"\nVocê tem {fichas} fichas.")
+    if fichas <= 0:
+        print("Você ficou sem fichas! Fim de jogo.\n")
+        break
+    
+    while True:
+        print(f"Digite um valor para apostar ou aposte tudo(all-in). Você tem {fichas} fichas");
+        entrada = input("Aposta: ").strip().lower()
+        if entrada == "all-in":
+            aposta = fichas;
+            break;
+        else:
+            try:
+                aposta = int(entrada)
+                if 0 < aposta <= fichas:
+                    break
+                else:
+                    print(f"Aposta inválida! Not enough cash stranger! Você ainda tem {fichas} fichas\n")
+            except ValueError:
+                print("Digite um numero de fichas que deseja apostar ou aposte tudo(All-in).");
+        
 
     # Iniciar uma partida;
+    ganho = int(aposta * 2.5)
     for _ in range(2):
         darCartas(maodoDealer, cartas)
         darCartas(maodoJogador, cartas)
 
-    while jogador or dealer:
+    while jogador or dealer: #Acho que consegui resolver o problema do Dealer mas dá uma olhada as vezes eu fiz uma merda e não percebi até agora :)
         print(f"O Dealer tem um {verMao(maodoDealer)} e mais uma carta\n")
         print(f"Você tem {maodoJogador} totalizando {totaldeCartas(maodoJogador)}\n")
         if jogador:
@@ -67,27 +97,34 @@ while resposta.lower() == "sim":
         if totaldeCartas(maodoJogador) >= 21 or totaldeCartas(maodoDealer) >= 21:
             break
 
-    if totaldeCartas(maodoJogador) == 21:
+    if totaldeCartas(maodoJogador) == 21 and len(maodoJogador) == 2: #Caso queira remover o metodo empate, eu acho que não precisa
         print(f"\n Você tem {maodoJogador} totalizando: {totaldeCartas(maodoJogador)}. Enquanto o Dealer tem {maodoDealer} totalizando: {totaldeCartas(maodoDealer)}")
-        print("Blackjack! Você ganhou.")
-    elif totaldeCartas(maodoDealer) == 21:
+        fichas += ganho - aposta;
+        print(f"lackjack! Você ganhou {ganho} fichas ficando com {fichas} fichas \n");
+    elif totaldeCartas(maodoDealer) == 21 and len(maodoDealer) == 2:
         print(f"\n Você tem {maodoJogador} totalizando: {totaldeCartas(maodoJogador)}. Enquanto o Dealer tem {maodoDealer} totalizando: {totaldeCartas(maodoDealer)}")
-        print("BlackJack! O Dealer ganhou!")
+        fichas -= aposta;
+        print(f"BlackJack! O Dealer ganhou! você perdeu {aposta} fichas ficando com {fichas}");
     elif totaldeCartas(maodoJogador) > 21:
         print(f"\n Você tem {maodoJogador} \n")
         print(f"Você estourou o numero de cartas ficando com {totaldeCartas(maodoJogador)}! O Dealer ganhou!\n")
+        fichas -= aposta;
+        print(f"você perdeu {aposta} fichas, ficando com {fichas}")
     elif totaldeCartas(maodoDealer) > 21:
         print(f"\n O Dealer tem {maodoDealer} \n")
-        print("O Dealer estourou o numero de cartas! Você ganhou!\n")
+        fichas += ganho - aposta;
+        print(f"O Dealer estourou o numero de cartas! Você ganhou {ganho} fichas, ficando com {fichas} fichas\n")
     elif 21 - totaldeCartas(maodoDealer) < 21 - totaldeCartas(maodoJogador):
         print(f"\n Você tem {maodoJogador} de um total de {totaldeCartas(maodoJogador)}. Enquanto o Dealer tem {maodoDealer} totalizando: {totaldeCartas(maodoDealer)}")
-        print("O Dealer ganhou!")
+        fichas -= aposta;
+        print(f"O Dealer ganhou! você perdeu {aposta} fichas ficando com {fichas} fichas")
     elif 21 - totaldeCartas(maodoDealer) > 21 - totaldeCartas(maodoJogador):
         print(f"\n Você tem {maodoJogador} de um total de {totaldeCartas(maodoJogador)}. Enquanto o Dealer tem {maodoDealer} totalizando: {totaldeCartas(maodoDealer)}")
-        print("Você ganhou!")
+        fichas += ganho - aposta;
+        print(f"Você ganhou {ganho} fichas, ficando com {fichas} fichas ")
     else:
         print(f"\n Você tem {maodoJogador} de um total de {totaldeCartas(maodoJogador)}. Enquanto o Dealer tem {maodoDealer} totalizando: {totaldeCartas(maodoDealer)}")
-        print("Empate!")
+        print("Empate! Você não perdeu/ganhou fichas!")
 
     # Perguntar se deseja continuar jogando:
     while True:
