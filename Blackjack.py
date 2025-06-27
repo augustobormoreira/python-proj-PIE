@@ -1,4 +1,57 @@
 import random
+from tkinter import *
+
+root = Tk()
+root.title("Blackjack Game - PIE")
+root.geometry("900x500")
+root.configure(bg="green")
+
+def embaralhar():
+    suits = ['diamonds', 'clubs', 'hearts', 'spades']
+    values = [2, 3, 4, 5, 6, 7, 8, 9, 10, 'jack', 'queen', 'king', 'ace']
+
+
+    global deck
+    deck = []
+    for suit in suits:
+        for value in values:
+            deck.append(f'{value}_of_{suit}')
+
+    global maoDoDealer, maoDoJogador
+    maoDoDealer = []
+    maoDoJogador = []
+
+    darCartas(maoDoDealer, deck)
+    darCartas(maoDoJogador, deck)
+
+
+myFrame = Frame(root, bg='green')
+myFrame.pack(pady=20)
+
+
+#Criando os frames das Cartas
+dealerFrame = LabelFrame(myFrame, text="Dealer", bd=0)
+dealerFrame.grid(row=0, column=0, padx=20, ipadx=20)
+
+playerFrame = LabelFrame(myFrame, text="Player", bd=0)
+playerFrame.grid(row=0, column=1, ipadx=20)
+
+#Colocar cartas nos frames
+dealerLabel = Label(dealerFrame, text="")
+dealerLabel.pack(pady=20)
+
+playerLabel = Label(playerFrame, text="")
+playerLabel.pack(pady=20)
+
+#Botoes necessarios
+shuffleButton = Button(root, text="Embaralhar", font=("Helvetica", 14), command=shuffle)
+shuffleButton.pack(pady=20)
+
+cardButton = Button(root, text="Receber Cartas", font=("Helvetica", 14))
+cardButton.pack(pady=20)
+
+root.mainloop()
+
 
 # Função pro Dealer dar as cartas;
 def darCartas(Rodada, cartas):
@@ -59,8 +112,8 @@ while resposta.lower() == "sim":
         print(f"Digite um valor para apostar ou aposte tudo(all-in). Você tem {fichas} fichas");
         entrada = input("Aposta: ").strip().lower()
         if entrada == "all-in":
-            aposta = fichas;
-            break;
+            aposta = fichas
+            break
         else:
             try:
                 aposta = int(entrada)
@@ -133,3 +186,4 @@ while resposta.lower() == "sim":
             break
         else:
             print("\nEntrada inválida! Por favor digite apenas 'Sim' ou 'Não'.")
+
