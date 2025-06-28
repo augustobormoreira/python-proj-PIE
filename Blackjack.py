@@ -89,7 +89,7 @@ def embaralhar():
     maoDoJogador = []
 
     #Preenche mão do Dealer e mão do Jogador com duas cartas
-    for _ in range(2):
+    for _ in range(1):
         darCartas(maoDoDealer, deck)
         darCartas(maoDoJogador, deck)
 
@@ -102,9 +102,6 @@ def embaralhar():
     updateTitle()
 
 
-
-
-
 myFrame = Frame(root, bg='green')
 myFrame.pack(pady=20)
 
@@ -115,15 +112,9 @@ dealerFrame = LabelFrame(myFrame, text="Dealer", bd=0)
 dealerFrame.grid(row=0, column=0, padx=20, ipadx=20)
 
 playerFrame = LabelFrame(myFrame, text="Player", bd=0)
-playerFrame.grid(row=0, column=1, ipadx=20)
+playerFrame.grid(row=1, column=0, padx=20, ipadx=20)
 
 #Colocar cartas nos frames
-
-dealerLabel = Label(dealerFrame, text="")
-dealerLabel.grid(pady=20, row=0, column=0)
-
-playerLabel = Label(playerFrame, text="")
-playerLabel.grid(pady=20, row=0, column=0)
 
 #Botoes necessarios
 shuffleButton = Button(root, text="Embaralhar", font=("Helvetica", 14), command=embaralhar)
