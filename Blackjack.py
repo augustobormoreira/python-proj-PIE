@@ -4,102 +4,111 @@ from PIL import ImageTk, Image
 
 root = Tk()
 root.title("Blackjack Game - PIE")
-root.geometry("900x500")
+root.geometry("1200x800")
 root.configure(bg="green")
-
-#Atualiza o titulo para mostrar o numero de cartas restantes
-def updateTitle():
-    root.title(f'Blackjack Game - PIE - {len(deck)} cartas restantes')
 
 # Função pro Dealer dar as cartas;
 def darCartas(maoPlayer, cartas):
-    carta = random.choice(cartas)
-    maoPlayer.append(carta)
-    cartas.remove(carta)
+    try:
+        carta = random.choice(cartas)
+        maoPlayer.append(carta)
+        cartas.remove(carta)
+        root.title(f'Blackjack Game - PIE - {len(cartas)} cards remaining!')
+        return carta
+    except:
+        root.title(f'Blackjack Game - PIE - No Cards remaining!')
 
-def pedirPlayer():
-    darCartas(maoDoJogador, deck)
-    fitPlayerCardsIntoLabels()
-    updateTitle()
-
-#Pega o caminho da carta no diretório e retorna como f string
-def getCardImage(card):
-    return f'Cards/Playing Cards/PNG-cards-1.3/{card}.png'
-
-#Arruma o tamanho da carta para caber no jogo
-def configurarCarta(card):
-    #Open image
-    cardImg = Image.open(card)
-
-    #Resize the image to fit the game
-    resizedImg = cardImg.resize((150, 218))
-
-
-    cardImg = ImageTk.PhotoImage(resizedImg)
-
-    return cardImg
-
-def fitPlayerCardsIntoLabels():
-
-    setAmmountOfNecessaryImages(playerImage, dealerImage)
-
-    for index, card in enumerate(playerImage):
-        playerLabel = Label(playerFrame, text="")
-        playerLabel.config(image=card)
-        playerLabel.grid(pady=20, row=0, column=index)
-
-def fitDealerCardsIntoLabels():
-    for index, card in enumerate(dealerImage):
-        dealerLabel = Label(dealerFrame, text="")
-        dealerLabel.config(image=card)
-        dealerLabel.grid(pady=20, row=0, column=index)
-
-def fitAllCardsIntoLabels():
-    fitPlayerCardsIntoLabels()
-    fitDealerCardsIntoLabels()
-
-def setAmmountOfNecessaryImages(playerImage, dealerImage):
-    if(len(playerImage) == 0 and len(dealerImage) == 0):
-        for mao in maoDoDealer:
-            dealerImage.append(configurarCarta(getCardImage(mao)))
-
-        for mao in maoDoJogador:
-            playerImage.append(configurarCarta(getCardImage(mao)))
-    else:
-        dealerImage.append(configurarCarta(getCardImage(maoDoDealer.__getitem__(len(maoDoDealer)-1))))
-        playerImage.append(configurarCarta(getCardImage(maoDoJogador.__getitem__(len(maoDoJogador)-1))))
+def darCartasPlayer():
+    global player_spot, cardPath
+    global player_label_1, player_label_2, player_label_3, player_label_4, player_label_5
+    if player_spot < 5:
+        carta = darCartas(player, deck)
+        if(player_spot==0):
+            player_image_1 = resize_cards(f'{cardPath}/{carta}.png')
+            player_label_1.config(image=player_image_1)
+            player_spot += 1
+        elif (player_spot == 1):
+            player_image_2 = resize_cards(f'{cardPath}/{carta}.png')
+            player_label_2.config(image=player_image_2)
+            player_spot += 1
+        elif (player_spot == 2):
+            player_image_3 = resize_cards(f'{cardPath}/{carta}.png')
+            player_label_3.config(image=player_image_3)
+            player_spot += 1
+        elif (player_spot == 3):
+            player_image_4 = resize_cards(f'{cardPath}/{carta}.png')
+            player_label_4.config(image=player_image_4)
+            player_spot += 1
+        elif (player_spot == 4):
+            player_image_5 = resize_cards(f'{cardPath}/{carta}.png')
+            player_label_5.config(image=player_image_5)
+            player_spot += 1
 
 
-def embaralhar():
-    # Cria baralho composto por 4 naipes e 13 cartas em cada naipe
+def darCartasDealer():
+    global dealer_spot
+    if dealer_spot < 5:
+        darCartas(dealer, deck)
+
+
+
+
+def deal():
+    cartaPlayer = darCartas(player, deck)
+    cartaDealer = darCartas(dealer, deck)
+    global dealer_image, player_image
+    dealer_image = resize_cards(f'Cards/Playing Cards/PNG-cards-1.3/{cartaDealer}.png')
+    player_image = resize_cards(f'Cards/Playing Cards/PNG-cards-1.3/{cartaPlayer}.png')
+    dealer_label_1.config(image=dealer_image)
+    player_label_1.config(image=player_image)
+
+def resize_cards(card):
+    card_img = Image.open(card)
+
+    card_img_resized = card_img.resize((150, 218))
+
+    global new_card_img
+    new_card_img = ImageTk.PhotoImage(card_img_resized)
+
+    return new_card_img
+
+def shuffle():
     suits = ['diamonds', 'clubs', 'hearts', 'spades']
     values = [2, 3, 4, 5, 6, 7, 8, 9, 10, 'jack', 'queen', 'king', 'ace']
 
+    #Limpar cartas dos jogos antigos
+    dealer_label_1.config(image='')
+    dealer_label_2.config(image='')
+    dealer_label_3.config(image='')
+    dealer_label_4.config(image='')
+    dealer_label_5.config(image='')
 
-    # preenche baralho de cartas usando o nome de cada valor em uma f string
+    player_label_1.config(image='')
+    player_label_2.config(image='')
+    player_label_3.config(image='')
+    player_label_4.config(image='')
+    player_label_5.config(image='')
+
     global deck
     deck = []
+
     for suit in suits:
         for value in values:
             deck.append(f'{value}_of_{suit}')
 
-    #Cria mão do Dealer e do Jogador
-    global maoDoDealer, maoDoJogador
-    maoDoDealer = []
-    maoDoJogador = []
+    global dealer, player, dealer_spot, player_spot
+    dealer = []
+    player = []
+    dealer_spot=0
+    player_spot=0
 
-    #Preenche mão do Dealer e mão do Jogador com duas cartas
-    for _ in range(1):
-        darCartas(maoDoDealer, deck)
-        darCartas(maoDoJogador, deck)
-
-    global dealerImage, playerImage
-    dealerImage = []
-    playerImage = []
-
-    #Create labels and put cards into them
-    fitAllCardsIntoLabels()
-    updateTitle()
+    cartaDealer = darCartas(dealer, deck)
+    cartaPlayer = darCartas(player, deck)
+    global dealer_image, player_image
+    dealer_image = resize_cards(f'Cards/Playing Cards/PNG-cards-1.3/{cartaDealer}.png')
+    player_image = resize_cards(f'Cards/Playing Cards/PNG-cards-1.3/{cartaPlayer}.png')
+    dealer_label_1.config(image = dealer_image)
+    player_label_1.config(image = player_image)
 
 
 myFrame = Frame(root, bg='green')
@@ -109,22 +118,56 @@ global dealerFrame, playerFrame
 
 #Criando os frames das Cartas
 dealerFrame = LabelFrame(myFrame, text="Dealer", bd=0)
-dealerFrame.grid(row=0, column=0, padx=20, ipadx=20)
+dealerFrame.pack(padx=20, ipadx=20)
 
 playerFrame = LabelFrame(myFrame, text="Player", bd=0)
-playerFrame.grid(row=1, column=0, padx=20, ipadx=20)
+playerFrame.pack(pady=20, ipadx=20)
 
 #Colocar cartas nos frames
+global cardPath
+cardPath = 'Cards/Playing Cards/PNG-cards-1.3/'
+global dealer_label_1, dealer_label_2, dealer_label_3, dealer_label_4, dealer_label_5
+global player_label_1, player_label_2, player_label_3, player_label_4, player_label_5
+
+dealer_label_1 = Label(dealerFrame, text='')
+dealer_label_1.grid(row = 0, column= 0,pady=20, padx=20)
+dealer_label_2 = Label(dealerFrame, text='')
+dealer_label_2.grid(row = 0, column= 1,pady=20, padx=20)
+dealer_label_3 = Label(dealerFrame, text='')
+dealer_label_3.grid(row = 0, column= 2,pady=20, padx=20)
+dealer_label_4 = Label(dealerFrame, text='')
+dealer_label_4.grid(row = 0, column= 3,pady=20, padx=20)
+dealer_label_5 = Label(dealerFrame, text='')
+dealer_label_5.grid(row = 0, column= 4,pady=20, padx=20)
+
+player_label_1 = Label(playerFrame, text='')
+player_label_1.grid(row = 0, column= 0,pady=20, padx=20)
+player_label_2 = Label(playerFrame, text='')
+player_label_2.grid(row = 0, column= 1,pady=20, padx=20)
+player_label_3 = Label(playerFrame, text='')
+player_label_3.grid(row = 0, column= 2,pady=20, padx=20)
+player_label_4 = Label(playerFrame, text='')
+player_label_4.grid(row = 0, column= 3,pady=20, padx=20)
+player_label_5 = Label(playerFrame, text='')
+player_label_5.grid(row = 0, column= 4,pady=20, padx=20)
+
+
+#Criando frame de botoes
+buttonFrame = Frame(root, bg='green')
+buttonFrame.pack(pady=20)
+
 
 #Botoes necessarios
-shuffleButton = Button(root, text="Embaralhar", font=("Helvetica", 14), command=embaralhar)
-shuffleButton.pack(pady=20)
+shuffleButton = Button(buttonFrame, text="Embaralhar", font=("Helvetica", 14), command=shuffle)
+shuffleButton.grid(row=0, column=0)
 
-hitButton = Button(root, text="Pedir", font=("Helvetica", 14), command=pedirPlayer)
-hitButton.pack(pady=20)
+hitButton = Button(buttonFrame, text="Pedir", font=("Helvetica", 14), command=darCartasPlayer())
+hitButton.grid(row=0, column=1, padx=10)
 
-embaralhar()
+standButton = Button(buttonFrame, text="Ficar", font=("Helvetica", 14))
+standButton.grid(row=0, column=2)
 
+shuffle()
 root.mainloop()
     
 # Calcular a mão do player e do Dealer;
