@@ -1,33 +1,114 @@
 import random
 from tkinter import *
+from PIL import ImageTk, Image
 
 root = Tk()
 root.title("Blackjack Game - PIE")
 root.geometry("900x500")
 root.configure(bg="green")
 
+#Atualiza o titulo para mostrar o numero de cartas restantes
+def updateTitle():
+    root.title(f'Blackjack Game - PIE - {len(deck)} cartas restantes')
+
+# Função pro Dealer dar as cartas;
+def darCartas(maoPlayer, cartas):
+    carta = random.choice(cartas)
+    maoPlayer.append(carta)
+    cartas.remove(carta)
+
+def pedirPlayer():
+    darCartas(maoDoJogador, deck)
+    fitPlayerCardsIntoLabels()
+    updateTitle()
+
+#Pega o caminho da carta no diretório e retorna como f string
+def getCardImage(card):
+    return f'Cards/Playing Cards/PNG-cards-1.3/{card}.png'
+
+#Arruma o tamanho da carta para caber no jogo
+def configurarCarta(card):
+    #Open image
+    cardImg = Image.open(card)
+
+    #Resize the image to fit the game
+    resizedImg = cardImg.resize((150, 218))
+
+
+    cardImg = ImageTk.PhotoImage(resizedImg)
+
+    return cardImg
+
+def fitPlayerCardsIntoLabels():
+
+    setAmmountOfNecessaryImages(playerImage, dealerImage)
+
+    for index, card in enumerate(playerImage):
+        playerLabel = Label(playerFrame, text="")
+        playerLabel.config(image=card)
+        playerLabel.grid(pady=20, row=0, column=index)
+
+def fitDealerCardsIntoLabels():
+    for index, card in enumerate(dealerImage):
+        dealerLabel = Label(dealerFrame, text="")
+        dealerLabel.config(image=card)
+        dealerLabel.grid(pady=20, row=0, column=index)
+
+def fitAllCardsIntoLabels():
+    fitPlayerCardsIntoLabels()
+    fitDealerCardsIntoLabels()
+
+def setAmmountOfNecessaryImages(playerImage, dealerImage):
+    if(len(playerImage) == 0 and len(dealerImage) == 0):
+        for mao in maoDoDealer:
+            dealerImage.append(configurarCarta(getCardImage(mao)))
+
+        for mao in maoDoJogador:
+            playerImage.append(configurarCarta(getCardImage(mao)))
+    else:
+        dealerImage.append(configurarCarta(getCardImage(maoDoDealer.__getitem__(len(maoDoDealer)-1))))
+        playerImage.append(configurarCarta(getCardImage(maoDoJogador.__getitem__(len(maoDoJogador)-1))))
+
+
 def embaralhar():
+    # Cria baralho composto por 4 naipes e 13 cartas em cada naipe
     suits = ['diamonds', 'clubs', 'hearts', 'spades']
     values = [2, 3, 4, 5, 6, 7, 8, 9, 10, 'jack', 'queen', 'king', 'ace']
 
 
+    # preenche baralho de cartas usando o nome de cada valor em uma f string
     global deck
     deck = []
     for suit in suits:
         for value in values:
             deck.append(f'{value}_of_{suit}')
 
+    #Cria mão do Dealer e do Jogador
     global maoDoDealer, maoDoJogador
     maoDoDealer = []
     maoDoJogador = []
 
-    darCartas(maoDoDealer, deck)
-    darCartas(maoDoJogador, deck)
+    #Preenche mão do Dealer e mão do Jogador com duas cartas
+    for _ in range(2):
+        darCartas(maoDoDealer, deck)
+        darCartas(maoDoJogador, deck)
+
+    global dealerImage, playerImage
+    dealerImage = []
+    playerImage = []
+
+    #Create labels and put cards into them
+    fitAllCardsIntoLabels()
+    updateTitle()
+
+
+
 
 
 myFrame = Frame(root, bg='green')
 myFrame.pack(pady=20)
 
+global dealerFrame, playerFrame
 
 #Criando os frames das Cartas
 dealerFrame = LabelFrame(myFrame, text="Dealer", bd=0)
@@ -37,27 +118,23 @@ playerFrame = LabelFrame(myFrame, text="Player", bd=0)
 playerFrame.grid(row=0, column=1, ipadx=20)
 
 #Colocar cartas nos frames
+
 dealerLabel = Label(dealerFrame, text="")
-dealerLabel.pack(pady=20)
+dealerLabel.grid(pady=20, row=0, column=0)
 
 playerLabel = Label(playerFrame, text="")
-playerLabel.pack(pady=20)
+playerLabel.grid(pady=20, row=0, column=0)
 
 #Botoes necessarios
-shuffleButton = Button(root, text="Embaralhar", font=("Helvetica", 14), command=shuffle)
+shuffleButton = Button(root, text="Embaralhar", font=("Helvetica", 14), command=embaralhar)
 shuffleButton.pack(pady=20)
 
-cardButton = Button(root, text="Receber Cartas", font=("Helvetica", 14))
-cardButton.pack(pady=20)
+hitButton = Button(root, text="Pedir", font=("Helvetica", 14), command=pedirPlayer)
+hitButton.pack(pady=20)
+
+embaralhar()
 
 root.mainloop()
-
-
-# Função pro Dealer dar as cartas;
-def darCartas(Rodada, cartas):
-    carta = random.choice(cartas)
-    Rodada.append(carta)
-    cartas.remove(carta)
     
 # Calcular a mão do player e do Dealer;
 def totaldeCartas(Rodada):
